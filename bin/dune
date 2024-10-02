@@ -1,5 +1,10 @@
 (executable
  (public_name neosurf)
  (name main)
- (libraries neosurf dream)
+ (libraries neosurf dream caqti-driver-sqlite3)
  (preprocess (pps lwt_ppx ppx_yojson_conv)))
+
+(rule
+ (deps render.eml.ml)
+ (targets render.ml)
+ (action (run dream_eml %{deps} --workspace %{workspace_root})))

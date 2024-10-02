@@ -18,7 +18,11 @@ let create name owner url = {
   members = [{ name = owner; url = url; }];
 }
 
-let adv_member adv_fn current = function
+let add_member (m : webring_member) = function
+  | { name = n; members = ms; } ->
+    { name = n; members = m :: ms }
+
+let adv_member adv_fn (current : webring_member) = function
   | { name = _; members = ms } ->
     let idx = match (List.find_index (fun m -> m = current) ms) with Some i -> i | None -> 0 in
     List.nth ms ((adv_fn idx) mod (List.length ms))
@@ -31,3 +35,9 @@ let prev_member = adv_member ((-) 1)
 
 (** [rand_member member webring] is a random [webring_member] in [webring.members] *)
 let rand_member = adv_member ((+) (Random.int 100))
+
+let widget_data name (wr : webring) =
+  let member = List.find_opt (fun (m : webring_member) -> m.name = name) wr.members in
+  match member with
+  | Some member -> Some (member.name, (next_member member wr).url, (prev_member member wr).url)
+  | None -> None

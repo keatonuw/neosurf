@@ -9,6 +9,10 @@ module Q = struct
     (string ->. unit) @@
     "INSERT INTO webring(blob) VALUES ($1)"
 
+  let update_webring =
+    (t2 int string ->. unit) @@
+    "UPDATE webring SET blob = $2 WHERE id = $1"
+
   (** get a webring blob by id *)
   let get_webring =
     (int ->! string) @@
@@ -27,7 +31,12 @@ end
 
 let create_webring =
   fun wr (module Db : DB) ->
-    let%lwt unit_or_error = Db.exec Q.create_webring (Yojson.Safe.to_string wr) in
+    let%lwt unit_or_error = Db.exec Q.create_webring (Yojson.Safe.to_string @@ Webring.yojson_of_webring wr) in
+    Caqti_lwt.or_fail unit_or_error
+
+let update_webring =
+  fun id wr (module Db : DB) ->
+    let%lwt unit_or_error = Db.exec Q.update_webring (id, Yojson.Safe.to_string @@ Webring.yojson_of_webring wr) in
     Caqti_lwt.or_fail unit_or_error
 
 let get_webring =
