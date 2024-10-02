@@ -1,4 +1,4 @@
 (executable
  (public_name neosurf)
  (name main)
- (libraries neosurf))
+ (libraries neosurf dream))
