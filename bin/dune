@@ -1,4 +1,5 @@
 (executable
  (public_name neosurf)
  (name main)
- (libraries neosurf dream))
+ (libraries neosurf dream)
+ (preprocess (pps lwt_ppx ppx_yojson_conv)))

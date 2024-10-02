@@ -10,6 +10,8 @@ type webring = {
   members : webring_member list;
 } [@@deriving yojson]
 
+type webring_list = (int * webring) list [@@deriving yojson]
+
 (** [create name owner url] creates a [webring] called [name] with a member [owner] at URL [url] *)
 let create name owner url = {
   name = name;
