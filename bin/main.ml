@@ -3,13 +3,18 @@ let () = Dream.run
 @@ Dream.memory_sessions
 @@ Dream.sql_pool "sqlite3:db.sqlite3"
 @@ Dream.router [
-  Dream.get "/" 
+  Dream.get "" 
     (fun r -> Dream.redirect r "/webring");
 
   Dream.scope "/webring" [] [
 
+    Dream.get "/" (fun request ->
+      let%lwt rings = Dream.sql request Db.get_webrings in
+      Render.webrings request rings
+      |> Dream.html);
+
     (* Get all webrings *)
-    Dream.get "" (fun request ->
+    Dream.get "/api" (fun request ->
       let%lwt rings = Dream.sql request Db.get_webrings in
       rings
       |> Webring.yojson_of_webring_list
@@ -22,7 +27,7 @@ let () = Dream.run
       | `Ok ["name", name; "owner", owner; "url", url] ->
         let wr = Webring.create name owner url in
         let%lwt () = Dream.sql request (Db.create_webring wr) in
-        Dream.empty `OK
+        Dream.redirect request "/webring/"
       | _ -> Dream.empty `Bad_Request);
 
     (* Get form to create webring *)
@@ -45,6 +50,15 @@ let () = Dream.run
       let%lwt webring = Dream.sql request (Db.get_webring id) in
       Render.edit request id webring
       |> Dream.html);
+
+    Dream.post "/:id/delete" (fun request ->
+      let id = int_of_string (Dream.param request "id") in
+      let%lwt () = Dream.sql request (Db.delete_webring id) in
+      match%lwt Dream.form request with
+      | `Ok _ -> 
+          Dream.redirect request "/webring/"
+      | _ -> 
+          Dream.empty `Bad_Request);
 
     (* Add a member to webring [id] *)
     Dream.post "/:id/add" (fun request ->

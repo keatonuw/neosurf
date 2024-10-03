@@ -9,6 +9,35 @@ let widget name next prev =
   </body>
   </html>
 
+let webrings request wrs =
+  <html>
+  <body>
+    <div>
+      <a href="/webring/create">Create Webring</a>
+    </div>
+    <div>
+% wrs |> List.iter begin fun ((id, { name; members; }) : int * Webring.webring) -> 
+      <div>
+        <p><%s name%></p>
+        <a href="/webring/<%d id%>/edit">Edit</a>
+        <form action="/webring/<%d id%>/delete" method="post">
+          <%s! Dream.csrf_tag request%>
+          <input type="submit" value="Delete"/>
+        </form>
+      </div>
+      <div>
+% members |> List.iter begin fun ({ name; url; } : Webring.webring_member) ->
+        <div>
+          <a href=<%s url%>><%s name%></a>
+          <a href="/webring/<%d id%>/<%s name%>">Widget</a>
+        </div>
+% end;
+% end;
+      </div>
+    </div>
+  </body>
+  </html>
+
 let create request = 
   <html>
   <body>
