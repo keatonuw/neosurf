@@ -22,6 +22,10 @@ let add_member (m : webring_member) = function
   | { name = n; members = ms; } ->
     { name = n; members = m :: ms }
 
+let remove_member (member : string) = function
+  | { name; members; } ->
+    { name = name; members = (List.filter (fun (m : webring_member) -> m.name <> member) members) }
+
 let adv_member adv_fn (current : webring_member) = function
   | { name = _; members = ms } ->
     let idx = match (List.find_index (fun m -> m = current) ms) with Some i -> i | None -> 0 in

@@ -3,9 +3,8 @@ let () = Dream.run
 @@ Dream.memory_sessions
 @@ Dream.sql_pool "sqlite3:db.sqlite3"
 @@ Dream.router [
-  Dream.get "" (fun _ ->
-    "hello"
-    |> Dream.html);
+  Dream.get "/" 
+    (fun r -> Dream.redirect r "/webring");
 
   Dream.scope "/webring" [] [
 
@@ -16,7 +15,6 @@ let () = Dream.run
       |> Webring.yojson_of_webring_list
       |> Yojson.Safe.to_string
       |> Dream.json);
-
        
     (* Create a webring (via form) *)
     Dream.post "/create" (fun request ->
@@ -48,14 +46,29 @@ let () = Dream.run
       Render.edit request id webring
       |> Dream.html);
 
+    (* Add a member to webring [id] *)
     Dream.post "/:id/add" (fun request ->
       let id = int_of_string (Dream.param request "id") in
       match%lwt Dream.form request with 
-      | `Ok ["name", name; "url", url] -> 
+      | `Ok ["add", _; "name", name; "url", url] -> 
         let%lwt webring = Dream.sql request (Db.get_webring id) in
         let wr = Webring.add_member { name = name; url = url } webring in 
         let%lwt () = Dream.sql request (Db.update_webring id wr) in
-        Dream.empty `OK
+        let rd = "/webring/" ^ string_of_int id ^ "/edit" in
+        Dream.redirect request rd
+      | _ -> Dream.empty `Bad_Request);
+
+    (* Remove [name] from webring [id] *)
+    Dream.post "/:id/:name/remove" (fun request ->
+      let id = int_of_string (Dream.param request "id") in
+      let name = Dream.param request "name" in
+      match%lwt Dream.form request with
+      | `Ok _ ->
+        let%lwt webring = Dream.sql request (Db.get_webring id) in
+        let wr = Webring.remove_member name webring in
+        let%lwt () = Dream.sql request (Db.update_webring id wr) in
+        let rd = "/webring/" ^ string_of_int id ^ "/edit" in
+        Dream.redirect request rd
       | _ -> Dream.empty `Bad_Request);
 
     (* Get HTML widget for a webring member *)
