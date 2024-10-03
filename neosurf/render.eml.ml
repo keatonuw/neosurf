@@ -2,10 +2,10 @@
 let widget name next prev =
   <html>
   <body>
-    <div>
-      <h1><%s name%></h1>
-      <a href="<%s next%>">next</a>
-      <a href="<%s prev%>">prev</a>
+    <div id="widget">
+      <h1 id="name"><%s name%></h1>
+      <a href="<%s next%>" id="next">next</a>
+      <a href="<%s prev%>" id="prev">prev</a>
     </div>
   </body>
   </html>
@@ -62,18 +62,36 @@ let edit request id (wr : Webring.webring) =
   <html>
   <body>
     <h1><%s wr.name%></h1>
-    <ul>
-% wr.members |> List.iteri begin fun i ({name; url;} : Webring.webring_member) ->
-      <li>
-        <a href=<%s url%>><%s name%></a>
-        <form action="/webring/<%d id%>/<%s name%>/remove" method="post" id="remove<%d i%>">
-          <%s! Dream.csrf_tag request%>
-          <input type="submit" value="Remove" name="remove<%d i%>">
-        </form>
-      </li>
-% end;
-    </ul>
+    
     <div>
+      <h3>Widget</h3>
+      <form action="/webring/<%d id%>/theme" method="post" id="theme">
+        <%s! Dream.csrf_tag request%>
+        <select name="font">
+          <option style="font-family:sans-serif" value="sans-serif">Sans-Serif</option>
+          <option style="font-family:serif" value="serif">Serif</option>
+        </select>
+        <input type="color" name="color"/>
+      </form>
+      <h3>Widget Preview</h3>
+      <%s! widget "Name" "/" "/"%>
+    </div>
+    <div>
+      <h3>Members</h3>
+      <ul>
+% wr.members |> List.iteri begin fun i ({name; url;} : Webring.webring_member) ->
+        <li>
+          <a href=<%s url%>><%s name%></a>
+          <form action="/webring/<%d id%>/<%s name%>/remove" method="post" id="remove<%d i%>">
+            <%s! Dream.csrf_tag request%>
+            <input type="submit" value="Remove" name="remove<%d i%>">
+          </form>
+        </li>
+% end;
+      </ul>
+    </div>
+    <div>
+      <h3>Add Member</h3>
       <form action="/webring/<%d id%>/add" method="post" id="add">
         <%s! Dream.csrf_tag request%>
 
