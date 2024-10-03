@@ -8,16 +8,26 @@ let () = Dream.run
 
   Dream.scope "/webring" [] [
 
+    (* Get all webrings, HTML *)
     Dream.get "/" (fun request ->
       let%lwt rings = Dream.sql request Db.get_webrings in
       Render.webrings request rings
       |> Dream.html);
 
-    (* Get all webrings *)
+    (* Get all webrings, JSON *)
     Dream.get "/api" (fun request ->
       let%lwt rings = Dream.sql request Db.get_webrings in
       rings
       |> Webring.yojson_of_webring_list
+      |> Yojson.Safe.to_string
+      |> Dream.json);
+
+    (* Get a webring, JSON *)
+    Dream.get "/api/:id" (fun request ->
+      let id = int_of_string @@ Dream.param request "id" in
+      let%lwt ring = Dream.sql request (Db.get_webring id) in
+      ring
+      |> Webring.yojson_of_webring
       |> Yojson.Safe.to_string
       |> Dream.json);
        
@@ -34,15 +44,6 @@ let () = Dream.run
     Dream.get "/create" (fun request ->
       Render.create request 
       |> Dream.html);
-
-    (* Get a webring *)
-    Dream.get "/:id" (fun request ->
-      let id = int_of_string @@ Dream.param request "id" in
-      let%lwt ring = Dream.sql request (Db.get_webring id) in
-      ring
-      |> Webring.yojson_of_webring
-      |> Yojson.Safe.to_string
-      |> Dream.json);
 
     (* Get form to edit webring *)
     Dream.get "/:id/edit" (fun request ->
