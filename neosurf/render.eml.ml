@@ -1,11 +1,11 @@
-(** render a user's widget *)
-let widget name next prev =
+(* * render a user's widget *)
+let widget name next prev (theme : Webring.webring_theme) =
   <html>
   <body>
-    <div id="widget">
+    <div id="widget" style="color: <%s theme.color%>; font-family: <%s Webring.string_of_font (theme.font)%>">
       <h1 id="name"><%s name%></h1>
-      <a href="<%s next%>" id="next">next</a>
-      <a href="<%s prev%>" id="prev">prev</a>
+      <a href="<%s prev%>" id="prev" style="color: <%s theme.color%>; font-family: <%s Webring.string_of_font (theme.font)%>">prev</a>
+      <a href="<%s next%>" id="next" style="color: <%s theme.color%>; font-family: <%s Webring.string_of_font (theme.font)%>">next</a>
     </div>
   </body>
   </html>
@@ -18,7 +18,7 @@ let webrings request wrs =
       <a href="/webring/create">Create Webring</a>
     </div>
     <div>
-% wrs |> List.iter begin fun ((id, { name; members; }) : int * Webring.webring) -> 
+% wrs |> List.iter begin fun ((id, { name; members; _; }) : int * Webring.webring) -> 
       <div>
         <p><%s name%></p>
         <a href="/webring/<%d id%>/edit">Edit</a>
@@ -67,14 +67,14 @@ let edit request id (wr : Webring.webring) =
       <h3>Widget</h3>
       <form action="/webring/<%d id%>/theme" method="post" id="theme">
         <%s! Dream.csrf_tag request%>
-        <select name="font">
-          <option style="font-family:sans-serif" value="sans-serif">Sans-Serif</option>
-          <option style="font-family:serif" value="serif">Serif</option>
+        <select name="font" onchange="this.form.submit()" value="<%s Webring.string_of_font wr.theme.font%>">
+          <option value="sans-serif">Sans-Serif</option>
+          <option value="serif">Serif</option>
         </select>
-        <input type="color" name="color"/>
+        <input type="color" name="color" onchange="this.form.submit()" value="<%s wr.theme.color%>"/>
       </form>
       <h3>Widget Preview</h3>
-      <%s! widget "Name" "/" "/"%>
+      <%s! widget "Name" "/" "/" (wr.theme)%>
     </div>
     <div>
       <h3>Members</h3>

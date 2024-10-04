@@ -1,39 +1,67 @@
 open Ppx_yojson_conv_lib.Yojson_conv.Primitives
 
+type theme_color = string [@@deriving yojson]
+
+type theme_font = Serif | SanSerif [@@deriving yojson]
+
+let string_of_font (font : theme_font) =
+  match font with
+  | Serif -> "serif"
+  | SanSerif -> "sans-serif"
+let font_of_string s =
+  if s = "serif" then Serif 
+  else SanSerif
+
 (** a member of a webring is called [name] and has a site at [url] *)
 type webring_member = {
   name : string;
   url : string;
 } [@@deriving yojson]
 
+type webring_theme = {
+  color : theme_color;
+  font : theme_font;
+} [@@deriving yojson]
+
 (** a webring has a [name] and a list of [members] *)
 type webring = {
   name : string;
   members : webring_member list;
+  theme : webring_theme;
 } [@@deriving yojson]
 
 (* creating type for serialization purposes *)
 type webring_list = (int * webring) list [@@deriving yojson]
 
+let default_theme = {
+  color = "#000000";
+  font = Serif;
+}
+
 (** [create name owner url] creates a [webring] called [name] with a member [owner] at URL [url] *)
 let create name owner url = {
   name = name;
   members = [{ name = owner; url = url; }];
+  theme = default_theme;
 }
 
 (** [add_member member webring] is a webring identical to [webring] but with  [member] added *)
 let add_member (m : webring_member) = function
-  | { name = n; members = ms; } ->
-    { name = n; members = m :: ms }
+  | { name = n; members = ms; theme = t; } ->
+    { name = n; members = m :: ms; theme = t; }
+
+let theme t = function
+  | { name; members; _; } ->
+    { name = name; members = members; theme = t; }
 
 (** [remove_member name webring] is a webring identical to [webring] but without the member [name] *)
 let remove_member (member : string) = function
-  | { name; members; } ->
-    { name = name; members = (List.filter (fun (m : webring_member) -> m.name <> member) members) }
+  | { name; members; theme = t; } ->
+    { name = name; members = (List.filter (fun (m : webring_member) -> m.name <> member) members); theme = t; }
 
 (** helper to navigate member lists *)
 let adv_member adv_fn (current : webring_member) = function
-  | { name = _; members = ms } ->
+  | { name = _; members = ms; theme = _ } ->
     let idx = match (List.find_index (fun m -> m = current) ms) with Some i -> i | None -> 0 in
     List.nth ms ((adv_fn idx) mod (List.length ms))
 
