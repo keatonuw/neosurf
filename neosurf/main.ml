@@ -76,9 +76,10 @@ let () = Dream.run
     Dream.post "/:id/theme" (fun request ->
       let id = int_of_string (Dream.param request "id") in
       match%lwt Dream.form request with
-      | `Ok ["color", color; "font", font] ->
+      | `Ok ["color", color; "font", font; "size", size] ->
         let%lwt webring = Dream.sql request (Db.get_webring id) in
-        let wr = Webring.theme { color = color; font = Webring.font_of_string font } webring in
+          let size = int_of_string size in
+          let wr = Webring.theme { color = color; font = Webring.font_of_string font; font_size = size; } webring in
         let%lwt () = Dream.sql request (Db.update_webring id wr) in
         let rd = "/webring/" ^ string_of_int id ^ "/edit" in
         Dream.redirect request rd
@@ -110,4 +111,6 @@ let () = Dream.run
       | None -> Dream.empty `Bad_Request);
 
   ];
+
+  Dream.get "/static/**" @@ Dream.static "./static"; 
 ]

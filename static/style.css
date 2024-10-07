@@ -1,0 +1,31 @@
+body {
+        background-color: #eeeeee;
+        color: black;
+        font-family: 'Times New Roman', Times, serif;
+}
+
+a {
+        color: blue;
+}
+
+a:hover {
+        color: red;
+}
+
+button,
+input,
+select {
+        border: 1px solid black;
+        border-radius: 0;
+        height: 20px;
+        background-color: #eeeeee;
+        box-shadow: 2px 2px gray;
+        transition: box-shadow 250ms ease-in-out;
+        font-family: 'Times New Roman', Times, serif;
+}
+
+button:hover,
+input:hover,
+select:hover {
+        box-shadow: 1px 1px black;
+}

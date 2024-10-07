@@ -21,6 +21,7 @@ type webring_member = {
 type webring_theme = {
   color : theme_color;
   font : theme_font;
+  font_size : int;
 } [@@deriving yojson]
 
 (** a webring has a [name] and a list of [members] *)
@@ -36,6 +37,7 @@ type webring_list = (int * webring) list [@@deriving yojson]
 let default_theme = {
   color = "#000000";
   font = Serif;
+  font_size = 12;
 }
 
 (** [create name owner url] creates a [webring] called [name] with a member [owner] at URL [url] *)
@@ -63,7 +65,7 @@ let remove_member (member : string) = function
 let adv_member adv_fn (current : webring_member) = function
   | { name = _; members = ms; theme = _ } ->
     let idx = match (List.find_index (fun m -> m = current) ms) with Some i -> i | None -> 0 in
-    List.nth ms ((adv_fn idx) mod (List.length ms))
+    List.nth ms ((abs (adv_fn idx)) mod (List.length ms))
 
 (** [next_member member webring] is the next [webring_member] in [webring.members] *)
 let next_member = adv_member ((+) 1)
