@@ -9,6 +9,7 @@ module Q = struct
     (string ->. unit) @@
     "INSERT INTO webring(blob) VALUES ($1)"
 
+  (** overwrite a webring's JSON blob *)
   let update_webring =
     (t2 int string ->. unit) @@
     "UPDATE webring SET blob = $2 WHERE id = $1"

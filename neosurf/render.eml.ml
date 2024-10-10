@@ -1,3 +1,4 @@
+(** render a user's widget *)
 let widget name next prev =
   <html>
   <body>
@@ -9,6 +10,7 @@ let widget name next prev =
   </body>
   </html>
 
+(** render all webrings *)
 let webrings request wrs =
   <html>
   <body>
@@ -38,6 +40,7 @@ let webrings request wrs =
   </body>
   </html>
 
+(** form to create a webring *)
 let create request = 
   <html>
   <body>
@@ -54,6 +57,7 @@ let create request =
   </body>
   </html>
 
+(** form to edit a webring *)
 let edit request id (wr : Webring.webring) =
   <html>
   <body>
