@@ -38,13 +38,13 @@ let webrings request wrs =
   </head>
   <body>
     <div>
-      <a href="/webring/create">Create Webring</a>
+      <a class="btn" href="/webring/create">Create Webring</a>
     </div>
     <div>
 % wrs |> List.iter begin fun ((id, { name; members; _; }) : int * Webring.webring) -> 
       <div>
         <p><%s name%></p>
-        <a href="/webring/<%d id%>/edit">Edit</a>
+        <a class="btn" href="/webring/<%d id%>/edit">Edit</a>
         <form action="/webring/<%d id%>/delete" method="post">
           <%s! Dream.csrf_tag request%>
           <input type="submit" value="Delete"/>

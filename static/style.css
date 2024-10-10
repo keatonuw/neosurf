@@ -14,18 +14,26 @@ a:hover {
 
 button,
 input,
-select {
+select,
+.btn {
         border: 1px solid black;
         border-radius: 0;
         height: 20px;
         background-color: #eeeeee;
         box-shadow: 2px 2px gray;
         transition: box-shadow 250ms ease-in-out;
+        transition: color 100ms;
         font-family: 'Times New Roman', Times, serif;
+        padding: 2px;
+        font-size: 14px;
+        text-decoration: none;
+        color: black;
 }
 
 button:hover,
 input:hover,
-select:hover {
+select:hover,
+.btn:hover {
         box-shadow: 1px 1px black;
+        color: red;
 }
